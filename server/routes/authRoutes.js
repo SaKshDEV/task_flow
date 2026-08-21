@@ -2,10 +2,22 @@ const express = require("express");
 
 const router = express.Router();
 
-const { registerUser,
-    loginUser } = require("../controllers/authController");
+const {
+    registerUser,
+    loginUser
+} = require("../controllers/authController");
+
+const protect = require("../middleware/authMiddleware");
+
+router.post("/register", registerUser);
 
 router.post("/login", loginUser);
-router.post("/register", registerUser);
- 
+
+router.get("/profile", protect, (req, res) => {
+    res.json({
+        message: "You are authenticated",
+        user: req.user
+    });
+});
+
 module.exports = router;
