@@ -6,5 +6,6 @@ const protect = require("../middleware/authMiddleware");
 const { createTask } = require("../controllers/taskController");
 
 router.post("/", protect, createTask);
+router.get("/", protect, getTasks);
 
 module.exports = router;
