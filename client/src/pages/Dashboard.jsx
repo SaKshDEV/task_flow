@@ -69,6 +69,28 @@ function Dashboard() {
             )
         }
     }
+    const handleToggleComplete = async (task) =>{
+        try{
+            const token = localStorage.getItem("token");
+
+            await api.put(
+                `/tasks/${task._id}`,
+                {
+                    completed: !task.completed
+                },
+                {
+                    header:{
+                        Authorization:`Bearer ${token}`
+                    }
+                }
+            )
+        }catch(error){
+            setMessage(
+                error.response?.data?.message ||
+                "failed to update task"
+            );
+        }
+    };
 
 
     useEffect(() => {
