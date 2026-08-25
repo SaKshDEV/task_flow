@@ -6,6 +6,9 @@ function Dashboard() {
 
     const [tasks, setTasks] = useState([]);
     const [message, setMessage] = useState("");
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [priority, setPriority] = useState("medium");
 
     const fetchTasks = async () => {
 
@@ -19,6 +22,7 @@ function Dashboard() {
                 }
             });
 
+
             setTasks(response.data.tasks);
 
         } catch (error) {
@@ -31,6 +35,41 @@ function Dashboard() {
         }
     };
 
+    const handleCreateTask = async (e) => {
+        e.preventDefault();
+
+        try {
+            const token = localStorage.getItem("token");
+
+            await api.post(
+                "/tasks",
+                {
+                    title,
+                    description,
+                    priority
+
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+
+            );
+            setTitle("");
+            setDescription("");
+            setPriority("medium");
+
+            fetchTasks();
+
+        } catch (error) {
+            setMessage(
+                error.response?.data?.message ||
+                "failed to create task"
+            )
+        }
+    }
+
 
     useEffect(() => {
         fetchTasks();
@@ -41,6 +80,32 @@ function Dashboard() {
         <div>
 
             <h1>TaskFlow Dashboard</h1>
+
+            <form onSubmit={handleCreateTask}>
+                <input type="text"
+                    placeholder="task title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)} />
+                    <br /><br />
+                <input type="text"
+                    placeholder="task description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)} />
+                    <br/><br/>
+                    <select 
+                    value={priority}
+                    onChange={(e)=> setPriority(e.target.value)}>
+                        <option value="low">low</option>
+                        <option value="medium">medium</option>
+                        <option value="high">high</option>
+                    </select>
+                    <br /> <br />
+                    <button type="submit">
+                        add task
+                    </button>
+
+
+            </form>
 
             {message && <p>{message}</p>}
 
