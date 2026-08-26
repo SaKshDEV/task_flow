@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import "./Auth.css";
 
 import api from "../services/api";
 
@@ -37,27 +38,67 @@ const handleLogin = async (e) => {
         );
     };
 };
-return(
-    <div>
-    <h1>Taskflow Login</h1>
+return (
+    <div className="auth-page">
 
-    <form onSubmit={handleLogin}>
-        <input type="email" placeholder="enter email" value={email} onChange={(e)=> setEmail(e.target.value)} /><br/><br/>
+        <div className="auth-card">
 
-        <input type="password" placeholder="enter password" value={password} onChange={(e)=> setPassword(e.target.value)} /><br/><br/>
+            <h1 className="auth-logo">
+                TaskFlow
+            </h1>
 
-        <button type="submit">Login</button>
-    </form>
+            <p className="auth-subtitle">
+                Sign in to manage your tasks
+            </p>
 
-    {message && <p>{message}</p>}
-    
-      <p>
+            <form
+                className="auth-form"
+                onSubmit={handleLogin}
+            >
+
+                <input
+                    type="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) =>
+                        setEmail(e.target.value)
+                    }
+                    required
+                />
+
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) =>
+                        setPassword(e.target.value)
+                    }
+                    required
+                />
+
+                <button
+                    className="auth-btn"
+                    type="submit"
+                >
+                    Login
+                </button>
+
+            </form>
+
+            {message && (
+                <p className="auth-message">
+                    {message}
+                </p>
+            )}
+
+            <p className="auth-switch">
                 Don't have an account?{" "}
                 <Link to="/register">
-                    Register
+                    Create account
                 </Link>
             </p>
 
+        </div>
 
     </div>
 );

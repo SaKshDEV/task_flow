@@ -34,44 +34,77 @@ const handleRegister = async (e) => {
 }
 
 return (
-    <div>
-        <h1> Create taskFlow account</h1>
+    <div className="auth-page">
 
-        <form onSubmit={handleRegister}>
-            <input type="text"
-                placeholder="enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)} /><br /> <br />
-            <input
-                type="email"
-                placeholder="enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+        <div className="auth-card">
 
+            <h1 className="auth-logo">
+                TaskFlow
+            </h1>
 
-            />
-            <input
-                type="password"
-                placeholder="enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+            <p className="auth-subtitle">
+                Create your account and start organizing
+            </p>
 
+            <form
+                className="auth-form"
+                onSubmit={handleRegister}
+            >
 
-            /><br /> <br />
-            <button type="submit">
-                register
+                <input
+                    type="text"
+                    placeholder="Full name"
+                    value={name}
+                    onChange={(e) =>
+                        setName(e.target.value)
+                    }
+                    required
+                />
 
-            </button>
+                <input
+                    type="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) =>
+                        setEmail(e.target.value)
+                    }
+                    required
+                />
 
-        </form>
-        {message && <p>{message}</p>}
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) =>
+                        setPassword(e.target.value)
+                    }
+                    required
+                />
 
-        <p>
-            Already have an account?{""}
-            <Link to= "/login">
-            login</Link>
-            
-        </p>
+                <button
+                    className="auth-btn"
+                    type="submit"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+            {message && (
+                <p className="auth-message">
+                    {message}
+                </p>
+            )}
+
+            <p className="auth-switch">
+                Already have an account?{" "}
+                <Link to="/login">
+                    Login
+                </Link>
+            </p>
+
+        </div>
+
     </div>
 );
 }
