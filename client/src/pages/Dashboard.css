@@ -251,3 +251,31 @@ body {
         align-items: flex-start;
     }
 }
+.task-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.task-filters input,
+.task-filters select {
+    padding: 11px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+}
+
+.task-filters input {
+    flex: 1;
+}
+
+.task-filters input:focus,
+.task-filters select:focus {
+    border-color: #2563eb;
+}
+
+@media (max-width: 600px) {
+    .task-filters {
+        flex-direction: column;
+    }
+}

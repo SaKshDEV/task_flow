@@ -10,10 +10,11 @@ function Dashboard() {
 
     const [tasks, setTasks] = useState([]);
     const [message, setMessage] = useState("");
-
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [priority, setPriority] = useState("medium");
+    const [search, setSearch] = useState("");
+    const [filterPriority, setFilterPriority] = useState("all");
 
     const navigate = useNavigate();
 
@@ -21,8 +22,6 @@ function Dashboard() {
         localStorage.getItem("user") || "{}"
     );
 
-
-    // GET TASKS
     const fetchTasks = async () => {
 
         try {
@@ -49,7 +48,6 @@ function Dashboard() {
     };
 
 
-    // CREATE TASK
     const handleCreateTask = async (e) => {
 
         e.preventDefault();
@@ -90,7 +88,6 @@ function Dashboard() {
     };
 
 
-    // COMPLETE / PENDING
     const handleToggleComplete = async (task) => {
 
         try {
@@ -122,7 +119,6 @@ function Dashboard() {
     };
 
 
-    // DELETE TASK
     const handleDeleteTask = async (taskId) => {
 
         try {
@@ -150,8 +146,6 @@ function Dashboard() {
         }
     };
 
-
-    // LOGOUT
     const handleLogout = () => {
 
         localStorage.removeItem("token");
@@ -165,8 +159,6 @@ function Dashboard() {
         fetchTasks();
     }, []);
 
-
-    // DASHBOARD STATISTICS
     const totalTasks = tasks.length;
 
     const completedTasks = tasks.filter(
@@ -174,6 +166,22 @@ function Dashboard() {
     ).length;
 
     const pendingTasks = totalTasks - completedTasks;
+
+    const filteredTasks = tasks.filter((task) => {
+        const matchesSearch =
+            task.title
+                .toLowerCase()
+                .includes(search.toLowerCase()) ||
+            task.description
+                .toLowerCase()
+                .includes(search.toLowerCase())
+
+        const matchesPriority = 
+        filterPriority === "all" ||
+        task.priority === filterPriority;
+         
+        return matchesSearch && matchesPriority;
+    });
 
 
     return (
@@ -202,7 +210,7 @@ function Dashboard() {
             </div>
 
 
-            {/* STATISTICS */}
+
 
             <div className="stats-container">
 
@@ -224,7 +232,7 @@ function Dashboard() {
             </div>
 
 
-            {/* CREATE TASK */}
+
 
             <div className="create-task">
 
@@ -291,13 +299,30 @@ function Dashboard() {
             )}
 
 
-            {/* TASK LIST */}
+
 
             <div className="tasks-section">
 
                 <h2>Your Tasks</h2>
 
-                {tasks.length === 0 ? (
+                <div className="task-filters">
+                    <input type="text"
+                    placeholder="search task..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value) } />
+                
+
+                <select
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value)}>
+                    <option value="all">All Priorities</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+                </div>
+
+                {filteredTasks.length === 0 ? (
 
                     <p className="empty-message">
                         No tasks found. Create your first task.
@@ -307,14 +332,13 @@ function Dashboard() {
 
                     <div className="task-grid">
 
-                        {tasks.map((task) => (
+                        {filteredTasks.map((task) => (
 
                             <div
-                                className={`task-card ${
-                                    task.completed
+                                className={`task-card ${task.completed
                                         ? "completed-task"
                                         : ""
-                                }`}
+                                    }`}
                                 key={task._id}
                             >
 
