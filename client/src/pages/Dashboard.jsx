@@ -1,15 +1,28 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import api from "../services/api";
+
+import "./Dashboard.css";
+
 
 function Dashboard() {
 
     const [tasks, setTasks] = useState([]);
     const [message, setMessage] = useState("");
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [priority, setPriority] = useState("medium");
 
+    const navigate = useNavigate();
+
+    const user = JSON.parse(
+        localStorage.getItem("user") || "{}"
+    );
+
+
+    // GET TASKS
     const fetchTasks = async () => {
 
         try {
@@ -22,8 +35,8 @@ function Dashboard() {
                 }
             });
 
-
             setTasks(response.data.tasks);
+            setMessage("");
 
         } catch (error) {
 
@@ -35,10 +48,14 @@ function Dashboard() {
         }
     };
 
+
+    // CREATE TASK
     const handleCreateTask = async (e) => {
+
         e.preventDefault();
 
         try {
+
             const token = localStorage.getItem("token");
 
             await api.post(
@@ -47,30 +64,37 @@ function Dashboard() {
                     title,
                     description,
                     priority
-
                 },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 }
-
             );
+
             setTitle("");
             setDescription("");
             setPriority("medium");
+            setMessage("");
 
             fetchTasks();
 
         } catch (error) {
+
             setMessage(
                 error.response?.data?.message ||
-                "failed to create task"
-            )
+                "Failed to create task"
+            );
+
         }
-    }
+    };
+
+
+    // COMPLETE / PENDING
     const handleToggleComplete = async (task) => {
+
         try {
+
             const token = localStorage.getItem("token");
 
             await api.put(
@@ -88,34 +112,53 @@ function Dashboard() {
             fetchTasks();
 
         } catch (error) {
+
             setMessage(
                 error.response?.data?.message ||
-                "failed to update task"
+                "Failed to update task"
             );
+
         }
     };
 
+
+    // DELETE TASK
     const handleDeleteTask = async (taskId) => {
+
         try {
 
             const token = localStorage.getItem("token");
 
             await api.delete(
-                `/tasks/${taskId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+                `/tasks/${taskId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
-            }
             );
+
             fetchTasks();
 
         } catch (error) {
+
             setMessage(
                 error.response?.data?.message ||
                 "Failed to delete task"
-            )
+            );
+
         }
-    }
+    };
+
+
+    // LOGOUT
+    const handleLogout = () => {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        navigate("/login");
+    };
 
 
     useEffect(() => {
@@ -123,86 +166,230 @@ function Dashboard() {
     }, []);
 
 
+    // DASHBOARD STATISTICS
+    const totalTasks = tasks.length;
+
+    const completedTasks = tasks.filter(
+        (task) => task.completed
+    ).length;
+
+    const pendingTasks = totalTasks - completedTasks;
+
+
     return (
-        <div>
 
-            <h1>TaskFlow Dashboard</h1>
+        <div className="dashboard">
 
-            <form onSubmit={handleCreateTask}>
-                <input type="text"
-                    placeholder="task title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)} />
-                <br /><br />
-                <input type="text"
-                    placeholder="task description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)} />
-                <br /><br />
-                <select
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}>
-                    <option value="low">low</option>
-                    <option value="medium">medium</option>
-                    <option value="high">high</option>
-                </select>
-                <br /> <br />
-                <button type="submit">
-                    add task
+            {/* HEADER */}
+
+            <div className="dashboard-header">
+
+                <div>
+                    <h1>TaskFlow</h1>
+
+                    <p>
+                        Welcome, {user.name || "User"}
+                    </p>
+                </div>
+
+                <button
+                    className="logout-btn"
+                    onClick={handleLogout}
+                >
+                    Logout
                 </button>
 
+            </div>
 
-            </form>
 
-            {message && <p>{message}</p>}
+            {/* STATISTICS */}
 
-            {tasks.length === 0 ? (
+            <div className="stats-container">
 
-                <p>No tasks found</p>
+                <div className="stat-card">
+                    <h3>Total Tasks</h3>
+                    <p>{totalTasks}</p>
+                </div>
 
-            ) : (
+                <div className="stat-card">
+                    <h3>Pending</h3>
+                    <p>{pendingTasks}</p>
+                </div>
 
-                tasks.map((task) => (
+                <div className="stat-card">
+                    <h3>Completed</h3>
+                    <p>{completedTasks}</p>
+                </div>
 
-                    <div key={task._id}>
+            </div>
 
-                        <h3>{task.title}</h3>
 
-                        <p>
-                            {task.description}
-                        </p>
+            {/* CREATE TASK */}
 
-                        <p>
-                            Priority: {task.priority}
-                        </p>
+            <div className="create-task">
 
-                        <p>
-                            Status:{" "}
-                            {task.completed
-                                ? "Completed"
-                                : "Pending"}
-                        </p>
+                <h2>Create New Task</h2>
 
-                        <button
-                            onClick={() => handleToggleComplete(task)}>
-                            {task.completed
-                                ? "Mark pending"
-                                : "mark completed"}
-                        </button>
+                <form onSubmit={handleCreateTask}>
 
-                        {" "}
-                        <button
-                            onClick={() => handleDeleteTask(task._id)}>
-                            Delete
-                        </button>
+                    <input
+                        type="text"
+                        placeholder="Task title"
+                        value={title}
+                        onChange={(e) =>
+                            setTitle(e.target.value)
+                        }
+                        required
+                    />
 
-                        <hr />
+                    <input
+                        type="text"
+                        placeholder="Task description"
+                        value={description}
+                        onChange={(e) =>
+                            setDescription(e.target.value)
+                        }
+                    />
+
+                    <select
+                        value={priority}
+                        onChange={(e) =>
+                            setPriority(e.target.value)
+                        }
+                    >
+
+                        <option value="low">
+                            Low
+                        </option>
+
+                        <option value="medium">
+                            Medium
+                        </option>
+
+                        <option value="high">
+                            High
+                        </option>
+
+                    </select>
+
+                    <button
+                        className="add-btn"
+                        type="submit"
+                    >
+                        Add Task
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            {message && (
+                <p className="error-message">
+                    {message}
+                </p>
+            )}
+
+
+            {/* TASK LIST */}
+
+            <div className="tasks-section">
+
+                <h2>Your Tasks</h2>
+
+                {tasks.length === 0 ? (
+
+                    <p className="empty-message">
+                        No tasks found. Create your first task.
+                    </p>
+
+                ) : (
+
+                    <div className="task-grid">
+
+                        {tasks.map((task) => (
+
+                            <div
+                                className={`task-card ${
+                                    task.completed
+                                        ? "completed-task"
+                                        : ""
+                                }`}
+                                key={task._id}
+                            >
+
+                                <div className="task-top">
+
+                                    <h3>
+                                        {task.title}
+                                    </h3>
+
+                                    <span
+                                        className={`priority ${task.priority}`}
+                                    >
+                                        {task.priority}
+                                    </span>
+
+                                </div>
+
+                                <p className="description">
+                                    {task.description ||
+                                        "No description"}
+                                </p>
+
+                                <p className="status">
+
+                                    Status:{" "}
+
+                                    <strong>
+                                        {task.completed
+                                            ? "Completed"
+                                            : "Pending"}
+                                    </strong>
+
+                                </p>
+
+
+                                <div className="task-actions">
+
+                                    <button
+                                        className="complete-btn"
+                                        onClick={() =>
+                                            handleToggleComplete(
+                                                task
+                                            )
+                                        }
+                                    >
+
+                                        {task.completed
+                                            ? "Mark Pending"
+                                            : "Mark Complete"}
+
+                                    </button>
+
+
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() =>
+                                            handleDeleteTask(
+                                                task._id
+                                            )
+                                        }
+                                    >
+                                        Delete
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        ))}
 
                     </div>
 
-                ))
+                )}
 
-            )}
+            </div>
 
         </div>
     );
