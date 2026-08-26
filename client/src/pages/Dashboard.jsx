@@ -69,8 +69,8 @@ function Dashboard() {
             )
         }
     }
-    const handleToggleComplete = async (task) =>{
-        try{
+    const handleToggleComplete = async (task) => {
+        try {
             const token = localStorage.getItem("token");
 
             await api.put(
@@ -79,18 +79,43 @@ function Dashboard() {
                     completed: !task.completed
                 },
                 {
-                    header:{
-                        Authorization:`Bearer ${token}`
+                    headers: {
+                        Authorization: `Bearer ${token}`
                     }
                 }
-            )
-        }catch(error){
+            );
+
+            fetchTasks();
+
+        } catch (error) {
             setMessage(
                 error.response?.data?.message ||
                 "failed to update task"
             );
         }
     };
+
+    const handleDeleteTask = async (taskId) => {
+        try {
+
+            const token = localStorage.getItem("token");
+
+            await api.delete(
+                `/tasks/${taskId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+            );
+            fetchTasks();
+
+        } catch (error) {
+            setMessage(
+                error.response?.data?.message ||
+                "Failed to delete task"
+            )
+        }
+    }
 
 
     useEffect(() => {
@@ -108,23 +133,23 @@ function Dashboard() {
                     placeholder="task title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)} />
-                    <br /><br />
+                <br /><br />
                 <input type="text"
                     placeholder="task description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)} />
-                    <br/><br/>
-                    <select 
+                <br /><br />
+                <select
                     value={priority}
-                    onChange={(e)=> setPriority(e.target.value)}>
-                        <option value="low">low</option>
-                        <option value="medium">medium</option>
-                        <option value="high">high</option>
-                    </select>
-                    <br /> <br />
-                    <button type="submit">
-                        add task
-                    </button>
+                    onChange={(e) => setPriority(e.target.value)}>
+                    <option value="low">low</option>
+                    <option value="medium">medium</option>
+                    <option value="high">high</option>
+                </select>
+                <br /> <br />
+                <button type="submit">
+                    add task
+                </button>
 
 
             </form>
@@ -157,6 +182,19 @@ function Dashboard() {
                                 ? "Completed"
                                 : "Pending"}
                         </p>
+
+                        <button
+                            onClick={() => handleToggleComplete(task)}>
+                            {task.completed
+                                ? "Mark pending"
+                                : "mark completed"}
+                        </button>
+
+                        {" "}
+                        <button
+                            onClick={() => handleDeleteTask(task._id)}>
+                            Delete
+                        </button>
 
                         <hr />
 
