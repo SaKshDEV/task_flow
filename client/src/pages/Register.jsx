@@ -8,104 +8,113 @@ function Register() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
-const handleRegister = async (e) => {
-    e.preventDefault();
+    const handleRegister = async (e) => {
+        e.preventDefault();
 
-    try {
-        await api.post("/auth/register", {
-            name,
-            email,
-            password
-        });
+        try {
+            await api.post("/auth/register", {
+                name,
+                email,
+                password
+            });
 
-        navigate("/login");
+            navigate("/login");
 
-    } catch (error) {
+        } catch (error) {
 
-        setMessage(
-            error.response?.data?.message ||
-            "registration failed"
-        )
+            setMessage(
+                error.response?.data?.message ||
+                "registration failed"
+            )
+        }
+        finally {
+
+            setLoading(false);
+
+        }
+
     }
 
-}
+    return (
+        <div className="auth-page">
 
-return (
-    <div className="auth-page">
+            <div className="auth-card">
 
-        <div className="auth-card">
+                <h1 className="auth-logo">
+                    TaskFlow
+                </h1>
 
-            <h1 className="auth-logo">
-                TaskFlow
-            </h1>
-
-            <p className="auth-subtitle">
-                Create your account and start organizing
-            </p>
-
-            <form
-                className="auth-form"
-                onSubmit={handleRegister}
-            >
-
-                <input
-                    type="text"
-                    placeholder="Full name"
-                    value={name}
-                    onChange={(e) =>
-                        setName(e.target.value)
-                    }
-                    required
-                />
-
-                <input
-                    type="email"
-                    placeholder="Email address"
-                    value={email}
-                    onChange={(e) =>
-                        setEmail(e.target.value)
-                    }
-                    required
-                />
-
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) =>
-                        setPassword(e.target.value)
-                    }
-                    required
-                />
-
-                <button
-                    className="auth-btn"
-                    type="submit"
-                >
-                    Create Account
-                </button>
-
-            </form>
-
-            {message && (
-                <p className="auth-message">
-                    {message}
+                <p className="auth-subtitle">
+                    Create your account and start organizing
                 </p>
-            )}
 
-            <p className="auth-switch">
-                Already have an account?{" "}
-                <Link to="/login">
-                    Login
-                </Link>
-            </p>
+                <form
+                    className="auth-form"
+                    onSubmit={handleRegister}
+                >
+
+                    <input
+                        type="text"
+                        placeholder="Full name"
+                        value={name}
+                        onChange={(e) =>
+                            setName(e.target.value)
+                        }
+                        required
+                    />
+
+                    <input
+                        type="email"
+                        placeholder="Email address"
+                        value={email}
+                        onChange={(e) =>
+                            setEmail(e.target.value)
+                        }
+                        required
+                    />
+
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) =>
+                            setPassword(e.target.value)
+                        }
+                        required
+                    />
+
+                    <button
+                        className="auth-btn"
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Creating account..."
+                            : "Create Account"}
+                    </button>
+
+                </form>
+
+                {message && (
+                    <p className="auth-message">
+                        {message}
+                    </p>
+                )}
+
+                <p className="auth-switch">
+                    Already have an account?{" "}
+                    <Link to="/login">
+                        Login
+                    </Link>
+                </p>
+
+            </div>
 
         </div>
-
-    </div>
-);
+    );
 }
 export default Register;

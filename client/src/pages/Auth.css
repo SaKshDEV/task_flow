@@ -86,3 +86,7 @@
 .auth-switch a:hover {
     text-decoration: underline;
 }
+.auth-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

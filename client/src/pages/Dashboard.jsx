@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  "./Auth.css"
+import "./Auth.css"
 
 import api from "../services/api";
 
@@ -16,6 +16,7 @@ function Dashboard() {
     const [priority, setPriority] = useState("medium");
     const [search, setSearch] = useState("");
     const [filterPriority, setFilterPriority] = useState("all");
+    const [creating, setCreating] = useState(false);
 
     const navigate = useNavigate();
 
@@ -45,6 +46,9 @@ function Dashboard() {
                 "Failed to load tasks"
             );
 
+        }
+        finally {
+            setCreating(false);
         }
     };
 
@@ -177,10 +181,10 @@ function Dashboard() {
                 .toLowerCase()
                 .includes(search.toLowerCase())
 
-        const matchesPriority = 
-        filterPriority === "all" ||
-        task.priority === filterPriority;
-         
+        const matchesPriority =
+            filterPriority === "all" ||
+            task.priority === filterPriority;
+
         return matchesSearch && matchesPriority;
     });
 
@@ -284,8 +288,9 @@ function Dashboard() {
                     <button
                         className="add-btn"
                         type="submit"
+                        disabled={creating}
                     >
-                        Add Task
+                        {creating ? "Adding..." : "Add Task"}
                     </button>
 
                 </form>
@@ -308,19 +313,19 @@ function Dashboard() {
 
                 <div className="task-filters">
                     <input type="text"
-                    placeholder="search task..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value) } />
-                
+                        placeholder="search task..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)} />
 
-                <select
-                value={filterPriority}
-                onChange={(e) => setFilterPriority(e.target.value)}>
-                    <option value="all">All Priorities</option>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                </select>
+
+                    <select
+                        value={filterPriority}
+                        onChange={(e) => setFilterPriority(e.target.value)}>
+                        <option value="all">All Priorities</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
 
                 {filteredTasks.length === 0 ? (
@@ -337,8 +342,8 @@ function Dashboard() {
 
                             <div
                                 className={`task-card ${task.completed
-                                        ? "completed-task"
-                                        : ""
+                                    ? "completed-task"
+                                    : ""
                                     }`}
                                 key={task._id}
                             >
