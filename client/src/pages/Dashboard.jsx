@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Auth.css"
 
 import api from "../services/api";
 
@@ -17,6 +16,10 @@ function Dashboard() {
     const [search, setSearch] = useState("");
     const [filterPriority, setFilterPriority] = useState("all");
     const [creating, setCreating] = useState(false);
+    const [editingTaskId, setEditingTaskId] = useState(null);
+    const [editTitle, setEditTitle] = useState("");
+    const [editDescription, setEditDescription] = useState("");
+    const [editPriority, setEditPriority] = useState("medium");
 
     const navigate = useNavigate();
 
@@ -47,15 +50,16 @@ function Dashboard() {
             );
 
         }
-        finally {
-            setCreating(false);
-        }
+
     };
 
 
     const handleCreateTask = async (e) => {
 
         e.preventDefault();
+
+        setCreating(true);
+        setMessage("");
 
         try {
 
@@ -90,6 +94,9 @@ function Dashboard() {
             );
 
         }
+        finally {
+            setCreating(false);
+        }
     };
 
 
@@ -111,6 +118,7 @@ function Dashboard() {
                 }
             );
 
+            setMessage("")
             fetchTasks();
 
         } catch (error) {
@@ -138,7 +146,7 @@ function Dashboard() {
                     }
                 }
             );
-
+            setMessage("");
             fetchTasks();
 
         } catch (error) {
@@ -150,6 +158,52 @@ function Dashboard() {
 
         }
     };
+
+    const handleEditClick = (task) => {
+        setEditingTaskId(task._id);
+        setEditTitle(task.title);
+        setEditDescription(task.description || "");
+        setEditPriority(task.priority);
+    }
+
+    const handleCancelEdit = () => {
+        setEditingTaskId(null);
+        setEditTitle("");
+        setEditDescription("");
+        setEditPriority("medium")
+    }
+
+    const handleSaveEdit = async (taskId) => {
+        try {
+
+            const token = localStorage.getItem("token");
+
+            await api.put(
+                `/tasks/${taskId}`,
+                {
+                    title: editTitle,
+                    description: editDescription,
+                    priority: editPriority
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            setEditingTaskId(null);
+            setMessage("");
+            fetchTasks()
+
+        } catch (error) {
+            setMessage(
+                error.response?.data?.message ||
+                "Failed to edit task"
+            )
+
+
+        }
+    }
 
     const handleLogout = () => {
 
@@ -174,10 +228,10 @@ function Dashboard() {
 
     const filteredTasks = tasks.filter((task) => {
         const matchesSearch =
-            task.title
+            (task.title || "")
                 .toLowerCase()
                 .includes(search.toLowerCase()) ||
-            task.description
+            (task.description || "")
                 .toLowerCase()
                 .includes(search.toLowerCase())
 
@@ -193,7 +247,7 @@ function Dashboard() {
 
         <div className="dashboard">
 
-            {/* HEADER */}
+
 
             <div className="dashboard-header">
 
@@ -329,9 +383,10 @@ function Dashboard() {
                 </div>
 
                 {filteredTasks.length === 0 ? (
-
                     <p className="empty-message">
-                        No tasks found. Create your first task.
+                        {tasks.length === 0
+                            ? "No tasks found. Create your first task."
+                            : "No matching tasks found."}
                     </p>
 
                 ) : (
@@ -347,69 +402,123 @@ function Dashboard() {
                                     }`}
                                 key={task._id}
                             >
+                                {editingTaskId === task._id ? (
 
-                                <div className="task-top">
+                                    <div className="edit-task-form">
 
-                                    <h3>
-                                        {task.title}
-                                    </h3>
+                                        <input
+                                            type="text"
+                                            value={editTitle}
+                                            onChange={(e) =>
+                                                setEditTitle(e.target.value)
+                                            }
+                                        />
 
-                                    <span
-                                        className={`priority ${task.priority}`}
-                                    >
-                                        {task.priority}
-                                    </span>
+                                        <input
+                                            type="text"
+                                            value={editDescription}
+                                            onChange={(e) =>
+                                                setEditDescription(e.target.value)
+                                            }
+                                        />
 
-                                </div>
+                                        <select
+                                            value={editPriority}
+                                            onChange={(e) =>
+                                                setEditPriority(e.target.value)
+                                            }
+                                        >
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                        </select>
 
-                                <p className="description">
-                                    {task.description ||
-                                        "No description"}
-                                </p>
+                                        <div className="edit-actions">
 
-                                <p className="status">
+                                            <button
+                                                className="save-btn"
+                                                onClick={() =>
+                                                    handleSaveEdit(task._id)
+                                                }
+                                            >
+                                                Save
+                                            </button>
 
-                                    Status:{" "}
+                                            <button
+                                                className="cancel-btn"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                Cancel
+                                            </button>
 
-                                    <strong>
-                                        {task.completed
-                                            ? "Completed"
-                                            : "Pending"}
-                                    </strong>
+                                        </div>
 
-                                </p>
+                                    </div>
 
+                                ) : (
+                                    <>
+                                        <div className="task-top">
 
-                                <div className="task-actions">
+                                            <h3>
+                                                {task.title}
+                                            </h3>
 
-                                    <button
-                                        className="complete-btn"
-                                        onClick={() =>
-                                            handleToggleComplete(
-                                                task
-                                            )
-                                        }
-                                    >
+                                            <span
+                                                className={`priority ${task.priority}`}
+                                            >
+                                                {task.priority}
+                                            </span>
 
-                                        {task.completed
-                                            ? "Mark Pending"
-                                            : "Mark Complete"}
+                                        </div>
 
-                                    </button>
+                                        <p className="description">
+                                            {task.description || "No description"}
+                                        </p>
 
+                                        <p className="status">
+                                            Status:{" "}
+                                            <strong>
+                                                {task.completed
+                                                    ? "Completed"
+                                                    : "Pending"}
+                                            </strong>
+                                        </p>
 
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() =>
-                                            handleDeleteTask(
-                                                task._id
-                                            )
-                                        }
-                                    >
-                                        Delete
-                                    </button>
+                                        <div className="task-actions">
 
-                                </div>
+                                            <button
+                                                className="complete-btn"
+                                                onClick={() =>
+                                                    handleToggleComplete(task)
+                                                }
+                                            >
+                                                {task.completed
+                                                    ? "Mark Pending"
+                                                    : "Mark Complete"}
+                                            </button>
+
+                                            <button
+                                                className="edit-btn"
+                                                onClick={() =>
+                                                    handleEditClick(task)
+                                                }
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() =>
+                                                    handleDeleteTask(task._id)
+                                                }
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </div>
+                                    </>
+
+                                )}
 
                             </div>
 
