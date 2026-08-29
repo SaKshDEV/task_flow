@@ -31,51 +31,59 @@
 <hr>
 <h2 align="center">✨ Features</h2>
 
-<table>
+<table width="100%">
 <tr>
-<td width="50%">
+<td width="50%" valign="top">
 
-### 🔐 Authentication
+<h3>🔐 Authentication</h3>
 
-- User Registration
-- Secure Login
-- JWT Authentication
-- Protected Routes
+<ul>
+<li>User Registration</li>
+<li>Secure Login</li>
+<li>JWT Authentication</li>
+<li>Protected Routes</li>
+</ul>
 
 </td>
 
-<td width="50%">
+<td width="50%" valign="top">
 
-### ✅ Task Management
+<h3>✅ Task Management</h3>
 
-- Create Tasks
-- Edit Tasks
-- Delete Tasks
-- Mark Complete / Pending
+<ul>
+<li>Create Tasks</li>
+<li>Edit Tasks</li>
+<li>Delete Tasks</li>
+<li>Mark Complete / Pending</li>
+</ul>
 
 </td>
 </tr>
 
 <tr>
-<td>
+<td width="50%" valign="top">
 
-### 🔍 Productivity
+<h3>🔍 Productivity</h3>
 
-- Search Tasks
-- Filter by Priority
-- Dashboard Statistics
-- User-specific Tasks
+<ul>
+<li>Search Tasks</li>
+<li>Filter by Priority</li>
+<li>Dashboard Statistics</li>
+<li>User-specific Tasks</li>
+</ul>
 
 </td>
 
-<td>
+<td width="50%" valign="top">
 
-### ⚡ User Experience
+<h3>⚡ User Experience</h3>
 
-- Loading States
-- Error Handling
-- Responsive UI
-- Cloud Data Persistence
+<ul>
+<li>Loading States</li>
+<li>Error Handling</li>
+<li>Responsive UI</li>
+<li>Cloud Data Persistence</li>
+</ul>
 
 </td>
 </tr>
